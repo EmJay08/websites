@@ -1,0 +1,123 @@
+/********image gallery lightbox********/
+//current image
+var $currentImage;
+var $nextImage;
+
+//make an overlaying lightbox
+var $lightbox = $('<div id="lightbox"></div>');
+var $image = $("<img>");
+var $caption = $("<p></p>");
+var $nextButton = $("<button>Next</button>");
+var $previousButton = $("<button>Previous</button>");
+var $closeButton = $("<button>Close</button>");
+$closeButton.addClass("top_close");
+$previousButton.addClass("left_prev");
+$nextButton.addClass("right_next");
+
+//add everything to the lightbox
+$lightbox.append($image);
+$lightbox.append($caption);
+$lightbox.append($previousButton);
+$lightbox.append($nextButton);
+$lightbox.append($closeButton);
+//add the whole thing to the document
+$("body").append($lightbox);
+
+//when user clicks a picture
+$("#gallery a").click(function(event){
+  
+    //do not follow deadend link
+    event.preventDefault();
+    
+    $currentImage = $(this);
+  
+    $currentImage.addClass("current");
+  
+    //get the link for the lightbox
+    var href = $currentImage.attr("href");
+  
+    //update the image with the href link
+    $image.attr("src", href);
+    
+    //get the image's alt attribute to set the caption
+    var caption = $currentImage.children("img").attr("alt");
+    
+    //set the caption to the image's alt attribute
+    $caption.text(caption);
+    
+    //now it is ready, show the lightbox!
+    $lightbox.show();
+});
+
+//when user clicks the next button
+$($nextButton).click(function(){
+
+  var stopper = false;
+  $("#gallery a").each(function(){
+      //if the current image is found, let it go 1 last time to the next thing
+      if(stopper == true)
+      {
+      $nextImage = $(this);
+      return false;
+      }
+      if($(this).hasClass("current"))
+      {
+        $(this).removeClass("current");
+        //we found the current image, lets go 1 last time
+        stopper = true;
+        //but just in case it's the last image
+        $nextImage = $(this);
+      }
+  });
+  changeImage();
+});
+
+//when user clicks the previous button
+$($previousButton).click(function(){
+  $nextImage = $currentImage;
+  
+  $("#gallery a").each(function(){
+    //if this is the current image, don't change it!
+    if($(this).hasClass("current"))
+    {
+      $(this).removeClass("current"); 
+      return false; 
+    }
+    //comes before the current image
+    $nextImage = $(this);
+  });
+  
+  changeImage();
+});
+
+var closeLightbox = function(){
+    //hide the lightbox
+    $($lightbox).hide();
+};
+
+//when user clicks the image or anything besides the prev/next buttons close it
+$($image).click(closeLightbox);
+//when user clicks the caption
+$($caption).click(closeLightbox);
+//when the user clicks the close button
+$($closeButton).click(closeLightbox);
+
+//changes the current picture/caption to the new one
+var changeImage = function(){
+  
+    $currentImage = $nextImage;
+  
+    $currentImage.addClass("current");
+  
+    //get the link for the lightbox
+    var href = $currentImage.attr("href");
+  
+    //update the image with the href link
+    $image.attr("src", href);
+    
+    //get the image's alt attribute to set the caption
+    var caption = $currentImage.children("img").attr("alt");
+    
+    //set the caption to the image's alt attribute
+    $caption.text(caption);
+};
